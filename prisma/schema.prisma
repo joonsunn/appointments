@@ -1,0 +1,64 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Configs {
+  id           String   @id @default(uuid())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
+  slotDuration Int      @default(30) // minutes
+  maxSlots     Int      @default(1)
+  startTime    String   @default("09:00")
+  endTime      String   @default("18:00")
+  sunday       Boolean  @default(false) // days indicate business day
+  monday       Boolean  @default(true)
+  tuesday      Boolean  @default(true)
+  wednesday    Boolean  @default(true)
+  thursday     Boolean  @default(true)
+  friday       Boolean  @default(true)
+  saturday     Boolean  @default(false)
+  timeZone     String   @default("Asia/Kuala_Lumpur")
+}
+
+model OffDays {
+  id        String   @id @default(uuid())
+  configId  String
+  createdAt DateTime @default(now())
+  date      String
+
+  @@unique([configId, date])
+  @@index([configId])
+}
+
+model OffHours {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  configId  String
+  startTime String   @default("13:00")
+  endTime   String   @default("14:00")
+
+  @@unique([startTime, endTime])
+  @@index([configId])
+}
+
+model Appointments {
+  id                  String   @id @default(uuid())
+  createdAt           DateTime @default(now())
+  configId            String
+  updatedAt           DateTime @default(now()) @updatedAt
+  appointmentDateTime DateTime
+
+  @@index([configId])
+}
