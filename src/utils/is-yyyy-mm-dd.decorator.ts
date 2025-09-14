@@ -1,8 +1,4 @@
-import {
-  ValidateBy,
-  ValidationOptions,
-  buildMessage,
-} from 'class-validator';
+import { ValidateBy, ValidationOptions, buildMessage } from 'class-validator';
 import { isYYYYMMDD } from './is-yyyy-mm-dd.validator';
 
 const IS_YYYY_MM_DD = 'isYYYYMMDD';

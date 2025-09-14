@@ -7,12 +7,12 @@ export class ConfigsController {
   constructor(private readonly configsService: ConfigsService) {}
 
   @Get()
-  findOne() {
-    return this.configsService.findOne();
+  async findOne() {
+    return await this.configsService.findOne();
   }
 
   @Patch()
-  update(@Body() dto: UpdateConfigDto) {
-    return this.configsService.update({ data: dto });
+  async update(@Body() dto: UpdateConfigDto) {
+    return await this.configsService.update({ data: dto });
   }
 }

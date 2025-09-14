@@ -7,7 +7,7 @@ export class SlotsController {
   constructor(private readonly slotsService: SlotsService) {}
 
   @Get(':date')
-  findAllOnDate(@Param('date', YYYYMMDDValidationPipe) date: string) {
-    return this.slotsService.findAllOnDate(date);
+  async findAllOnDate(@Param('date', YYYYMMDDValidationPipe) date: string) {
+    return await this.slotsService.findAllOnDate(date);
   }
 }

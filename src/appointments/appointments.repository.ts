@@ -68,6 +68,14 @@ export class AppointmentsRepository {
           lte: endDate,
         },
       },
+      orderBy: [
+        {
+          appointmentDateTime: 'asc',
+        },
+        {
+          createdAt: 'asc',
+        },
+      ],
     });
 
     return result;
@@ -89,13 +97,17 @@ export class AppointmentsRepository {
     tx?: Prisma.TransactionClient,
   ) {
     const { id, ...data } = request;
-    const result = await this.appointmentsDb(tx).update({
-      where: {
-        id,
-      },
-      data,
-    });
-    return result;
+    try {
+      const result = await this.appointmentsDb(tx).update({
+        where: {
+          id,
+        },
+        data,
+      });
+      return result;
+    } catch {
+      throw new BadRequestException('Unable to update appointment');
+    }
   }
 
   async remove(request: { id: string }, tx?: Prisma.TransactionClient) {

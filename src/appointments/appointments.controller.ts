@@ -10,6 +10,7 @@ import {
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
+import { YYYYMMDDValidationPipe } from 'src/off-days/pipes/yyyy-mm-dd-validation.pipe';
 
 @Controller('appointments')
 export class AppointmentsController {
@@ -23,6 +24,14 @@ export class AppointmentsController {
   @Get()
   async findAll() {
     return await this.appointmentsService.findAll();
+  }
+
+  @Get('by-date/:date')
+  async findAllOnDate(@Param('date', YYYYMMDDValidationPipe) date: string) {
+    const dateInput = new Date(date);
+    return await this.appointmentsService.findAllOnDate({
+      appointmentDateTime: dateInput,
+    });
   }
 
   @Get(':id')
