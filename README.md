@@ -43,7 +43,7 @@ A `config` represents the core configuration for the appointment system. A defau
 | thursday     | Boolean | `true`              |                                               |
 | friday       | Boolean | `true`              |                                               |
 | saturday     | Boolean | `false`             |                                               |
-| timeZone     | String  | "Asia/Kuala_Lumpur" | (For informational purposes)                  |
+| timeZone     | String  | "Asia/Kuala_Lumpur" |                                               |
 
 ### 2. Off Days
 

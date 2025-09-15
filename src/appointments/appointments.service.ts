@@ -7,6 +7,7 @@ import { DbService } from 'src/db/db.service';
 import { ConfigsService } from 'src/configs/configs.service';
 import { OffDaysService } from 'src/off-days/off-days.service';
 import { OffHoursService } from 'src/off-hours/off-hours.service';
+import { dayjs } from 'src/lib/dayjs';
 
 @Injectable()
 export class AppointmentsService {
@@ -96,12 +97,17 @@ export class AppointmentsService {
     config: Configs;
   }) {
     const { appointmentDateTime, config } = request;
-    const nearestSlot = this.findNearestSlot({
+    const zonedAppointmentDateTime = dayjs.tz(
       appointmentDateTime,
+      config.timeZone,
+    );
+    const nearestSlot = this.findNearestSlot({
+      appointmentDateTime: zonedAppointmentDateTime.toDate(),
       config,
     });
 
-    const day = nearestSlot.getDay();
+    const zonedNearestSlot = dayjs.tz(nearestSlot, config.timeZone);
+    const day = zonedNearestSlot.day();
     const dayMap = {
       0: 'sunday',
       1: 'monday',
@@ -116,15 +122,36 @@ export class AppointmentsService {
       throw new BadRequestException('Off day');
     }
 
-    const date = nearestSlot.toISOString().split('T')[0];
+    const date = zonedNearestSlot.format('YYYY-MM-DD');
     const isHoliday = await this.offDaysService.findOne({ date });
     if (isHoliday) {
       throw new BadRequestException('Off day');
     }
 
-    const isOffHour = await this.offHoursService.isOffHour(nearestSlot);
+    const isOffHour = await this.offHoursService.isOffHour(
+      zonedNearestSlot.toDate(),
+    );
     if (isOffHour) {
       throw new BadRequestException('Off hour');
+    }
+
+    const [startHour, startMinute] = config.startTime.split(':').map(Number);
+    const [endHour, endMinute] = config.endTime.split(':').map(Number);
+
+    const slotTime = zonedNearestSlot;
+    const startOfDay = zonedNearestSlot
+      .hour(startHour)
+      .minute(startMinute)
+      .second(0)
+      .millisecond(0);
+    const endOfDay = zonedNearestSlot
+      .hour(endHour)
+      .minute(endMinute)
+      .second(0)
+      .millisecond(0);
+
+    if (slotTime.isBefore(startOfDay) || slotTime.isSameOrAfter(endOfDay)) {
+      throw new BadRequestException('Outside operating hours');
     }
 
     const allAppointmentsInSlot = await this.findAllInSlot({
@@ -138,14 +165,20 @@ export class AppointmentsService {
   }
 
   findNearestSlot(request: { appointmentDateTime: Date; config: Configs }) {
-    const { slotDuration } = request.config;
+    const { slotDuration, timeZone } = request.config;
     const slotDurationMs = slotDuration * 60 * 1000; // convert minutes to milliseconds
 
-    const appointmentTime = request.appointmentDateTime.getTime();
+    const zonedAppointmentDateTime = dayjs.tz(
+      request.appointmentDateTime,
+      timeZone,
+    );
+    const appointmentTime = zonedAppointmentDateTime.valueOf();
 
-    const nearestSlot =
+    const nearestSlotTime =
       Math.round(appointmentTime / slotDurationMs) * slotDurationMs;
 
-    return new Date(nearestSlot);
+    const nearestSlot = dayjs.tz(nearestSlotTime, timeZone);
+
+    return nearestSlot.toDate();
   }
 }

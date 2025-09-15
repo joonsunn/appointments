@@ -29,11 +29,15 @@ export class OffDaysRepository {
     dto: CreateOffDayDto & { configId: string },
     tx?: Prisma.TransactionClient,
   ) {
-    const result = await this.offDaysDb(tx).create({
-      data: dto,
-    });
+    try {
+      const result = await this.offDaysDb(tx).create({
+        data: dto,
+      });
 
-    return result;
+      return result;
+    } catch {
+      throw new BadRequestException('Unable to create off day');
+    }
   }
 
   async remove(
