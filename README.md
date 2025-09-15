@@ -29,40 +29,46 @@ When making changes to the `prisma/schema.prisma` file, you will need to create 
 
 A `config` represents the core configuration for the appointment system. A default configuration is created on the first request if one doesn't exist.
 
-| Property     | Type    | Default             | Remarks                                       |
-| ------------ | ------- | ------------------- | --------------------------------------------- |
-| id           | String  | UUIDv4              |                                               |
-| slotDuration | Integer | 30                  | Duration of each appointment slot in minutes. |
-| maxSlots     | Integer | 1                   | Max concurrent appointments per slot.         |
-| startTime    | String  | "09:00"             | Business start time in "hh:mm" format.        |
-| endTime      | String  | "18:00"             | Business end time in "hh:mm" format.          |
-| sunday       | Boolean | `false`             | `true` if it's a business day.                |
-| monday       | Boolean | `true`              |                                               |
-| tuesday      | Boolean | `true`              |                                               |
-| wednesday    | Boolean | `true`              |                                               |
-| thursday     | Boolean | `true`              |                                               |
-| friday       | Boolean | `true`              |                                               |
-| saturday     | Boolean | `false`             |                                               |
-| timeZone     | String  | "Asia/Kuala_Lumpur" |                                               |
+| Property     | Type     | Default             | Remarks                                       |
+| ------------ | -------- | ------------------- | --------------------------------------------- |
+| id           | String   | UUIDv4              |                                               |
+| createdAt    | DateTime | now()               |                                               |
+| updatedAt    | DateTime | now()               |                                               |
+| slotDuration | Integer  | 30                  | Duration of each appointment slot in minutes. |
+| maxSlots     | Integer  | 1                   | Max concurrent appointments per slot.         |
+| startTime    | String   | "09:00"             | Business start time in "hh:mm" format.        |
+| endTime      | String   | "18:00"             | Business end time in "hh:mm" format.          |
+| sunday       | Boolean  | `false`             | `true` if it's a business day.                |
+| monday       | Boolean  | `true`              |                                               |
+| tuesday      | Boolean  | `true`              |                                               |
+| wednesday    | Boolean  | `true`              |                                               |
+| thursday     | Boolean  | `true`              |                                               |
+| friday       | Boolean  | `true`              |                                               |
+| saturday     | Boolean  | `false`             |                                               |
+| timeZone     | String   | "Asia/Kuala_Lumpur" |                                               |
 
 ### 2. Off Days
 
 Stores specific dates that are designated as non-business days (e.g., public holidays).
 
-| Property | Type   | Default |
-| -------- | ------ | ------- |
-| id       | String | UUIDv4  |
-| date     | String |         |
+| Property  | Type     | Default |
+| --------- | -------- | ------- |
+| id        | String   | UUIDv4  |
+| configId  | String   |         |
+| createdAt | DateTime | now()   |
+| date      | String   |         |
 
 ### 3. Off Hours
 
 Stores specific time ranges within a business day that are unavailable for appointments (e.g., lunch breaks).
 
-| Property  | Type   | Default |
-| --------- | ------ | ------- |
-| id        | String | UUIDv4  |
-| startTime | String | "13:00" |
-| endTime   | String | "14:00" |
+| Property  | Type     | Default |
+| --------- | -------- | ------- |
+| id        | String   | UUIDv4  |
+| createdAt | DateTime | now()   |
+| configId  | String   |         |
+| startTime | String   | "13:00" |
+| endTime   | String   | "14:00" |
 
 ### 4. Appointments
 
@@ -71,6 +77,9 @@ Stores information about a scheduled appointment.
 | Property            | Type     | Default |
 | ------------------- | -------- | ------- |
 | id                  | String   | UUIDv4  |
+| createdAt           | DateTime | now()   |
+| configId            | String   |         |
+| updatedAt           | DateTime | now()   |
 | appointmentDateTime | DateTime |         |
 
 ## Endpoints
@@ -257,7 +266,6 @@ Retrieves all off-days.
     {
       "id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
       "createdAt": "2025-09-14T08:00:00.000Z",
-      "updatedAt": "2025-09-14T08:00:00.000Z",
       "date": "2025-12-25"
     }
   ]
@@ -295,7 +303,6 @@ Retrieves all off-hour ranges.
     {
       "id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
       "createdAt": "2025-09-14T08:00:00.000Z",
-      "updatedAt": "2025-09-14T08:00:00.000Z",
       "startTime": "12:00",
       "endTime": "13:00"
     }
