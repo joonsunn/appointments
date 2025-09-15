@@ -1,3 +1,5 @@
+import * as dotenv from 'dotenv';
+dotenv.config();
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
@@ -11,6 +13,7 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+  app.enableShutdownHooks();
   await app.listen(process.env.PORT ?? 3000);
 }
 void bootstrap();
